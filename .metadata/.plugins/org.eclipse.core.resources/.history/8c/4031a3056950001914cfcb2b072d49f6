@@ -1,0 +1,65 @@
+
+public class Bus {
+	static int CAPACITY;
+	int route,nextStop,timeToRest;
+	int toNextStop=0;
+	
+	PassengerQueue busQueue; 
+	public Bus(int capacity,int timeToRest,int route) {
+		this.route=route;
+		this.timeToRest=timeToRest;
+		Bus.CAPACITY=capacity;
+		busQueue = new PassengerQueue();
+	}
+	public void setNextStop() {
+		this.nextStop++;
+	}
+	public int getNextStop() {
+		return nextStop;
+	}
+	public void setTimeToRest(int timeToRest) {
+		this.timeToRest=timeToRest;
+	}
+	public boolean isTimeToRestZero() {
+		return (timeToRest==0);
+	}
+	public boolean isToNextStopZero() {
+		return (toNextStop==0);
+	}
+	public void reduceTimeToRest() {
+		timeToRest--;
+	}
+	public void reduceToNextStop() {
+		toNextStop--;
+	}
+	public void setToNextStop() {
+		toNextStop=20;
+	}
+	public void addPassenger(Passenger p) {
+		busQueue.enqueue(p);
+	}
+	public Passenger peek() {
+		return busQueue.peek();
+	}
+	public void removePassenger() {
+		busQueue.dequeue();
+	}
+	public int busSize() {
+		return busQueue.size();
+	}
+	public int unload(int destination) {
+		int passenger=0;
+		PassengerQueue tempBusQueue = new PassengerQueue();
+		for(int i=0;i<busQueue.size();i++) {
+			if(busQueue.peek().getDestination()==destination) {
+				passenger=passenger++;
+				busQueue.dequeue();
+			}
+			tempBusQueue.enqueue(busQueue.dequeue());
+		}
+		for(int i=0;i<tempBusQueue.size();i++) {
+			busQueue.enqueue(tempBusQueue.dequeue());
+		}
+		return passenger;
+	}
+}

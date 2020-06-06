@@ -1,0 +1,49 @@
+{
+   "results" : [
+      {
+         "address_components" : [
+            {
+               "long_name" : "Helsinki",
+               "short_name" : "HKI",
+               "types" : [ "locality", "political" ]
+            },
+            {
+               "long_name" : "Finland",
+               "short_name" : "FI",
+               "types" : [ "country", "political" ]
+            }
+         ],
+         "formatted_address" : "Helsinki, Finland",
+         "geometry" : {
+            "bounds" : {
+               "northeast" : {
+                  "lat" : 60.2978389,
+                  "lng" : 25.2544849
+               },
+               "southwest" : {
+                  "lat" : 59.9224887,
+                  "lng" : 24.7828758
+               }
+            },
+            "location" : {
+               "lat" : 60.16985569999999,
+               "lng" : 24.9383791
+            },
+            "location_type" : "APPROXIMATE",
+            "viewport" : {
+               "northeast" : {
+                  "lat" : 60.2978389,
+                  "lng" : 25.2544849
+               },
+               "southwest" : {
+                  "lat" : 59.9224887,
+                  "lng" : 24.7828758
+               }
+            }
+         },
+         "place_id" : "ChIJkQYhlscLkkYRY_fiO4S9Ts0",
+         "types" : [ "locality", "political" ]
+      }
+   ],
+   "status" : "OK"
+}

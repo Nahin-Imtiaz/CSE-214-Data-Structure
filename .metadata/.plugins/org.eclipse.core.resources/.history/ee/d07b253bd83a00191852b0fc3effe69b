@@ -1,0 +1,6 @@
+
+public class NoCurrentNodeException extends IllegalArgumentException{
+	public NoCurrentNodeException(String message) {
+		super(message);
+	}
+}

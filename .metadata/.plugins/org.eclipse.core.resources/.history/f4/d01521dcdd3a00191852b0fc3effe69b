@@ -1,0 +1,169 @@
+/**
+ * @author Nahin Imtiaz
+ *		email: nahin.imtiaz@stonybrook.edu
+ *		Stony brook ID : 111214466
+ *		Instructor : Juan Tarquino
+ *		Section -06
+ *
+ *
+ *This class represents PerformanceNode which contains the performance name,player name,duration,starTime,prevLink,nextLink and serialNo
+ */
+public class PerformanceNode {
+	private String performance;
+	private String performerName;
+	private int totalPerticipants;
+	private int duration;
+	private int startTime;
+	private PerformanceNode prevLink;
+	private PerformanceNode nextLink;
+	private int serialNo;
+    /**
+     * This is a default constructor.
+     */
+	public PerformanceNode() {	
+	}
+	/**
+	 * This constructor is used to create PerformanceNode with parameter
+	 * @param performance
+	 * The name of the performance
+	 * @param performerName
+	 * the name of the lead performer
+	 * @param totalPerticipants
+	 * this is the total perticipants
+	 * @param duration
+	 * this is the duration for each performance
+	 */
+	public PerformanceNode(String performance , String performerName , int totalPerticipants , int duration) {
+		this.performance = performance;
+		this.performerName = performerName;
+		this.totalPerticipants = totalPerticipants;
+		this.duration = duration;
+		prevLink = null;
+		nextLink = null;
+		
+	}
+	/**
+	 * this method returns performance name
+	 * @return performance
+	 */
+	public String getPerformance() {
+		return performance;
+	}
+	/**
+	 * this method sets the given performance name
+	 * @param performance
+	 */
+	public void setPerformance(String performance) {
+		this.performance = performance;
+	}
+	/**
+	 * this method returns performers name
+	 * @return performerName
+	 */
+	public String getPerformerName() {
+		return performerName;
+	}
+	/**
+	 * this method sets the given performer name
+	 * @param performerName
+	 */
+	public void setPerformerName(String performerName) {
+		this.performerName = performerName;
+	}
+	/**
+	 * this method returns total Perticipants
+	 * @return totalPerticipants
+	 */
+	public int getTotalPerticipants() {
+		return totalPerticipants;
+	}
+	/**
+	 * this method sets the given totalPerticipants
+	 * @param totalPerticipants
+	 */
+	public void setTotalPerticipants(int totalPerticipants) {
+		this.totalPerticipants = totalPerticipants;
+	}
+	/**
+	 * this method returns duration
+	 * @return duration
+	 */
+	public int getDuration() {
+		return duration;
+	}
+	/**
+	 * this method sets the given duration
+	 * @param duration
+	 */
+	public void setDuration(int duration) {
+		this.duration = duration;
+	}
+	/**
+	 * this method returns startTime
+	 * @return startTime
+	 */
+	public int getStartTime() {
+		return startTime;
+	}
+	/**
+	 * this method sets the startTime
+	 * @param prevDuration
+	 * this is the duration of previous node
+	 * @param prevStartTime
+	 * this is the startTime of previous node
+	 */
+	public void setStartTime(int prevDuration,int prevStartTime) {
+		this.startTime = prevDuration+prevStartTime;
+	}
+	/**
+	 * this method returns the previous node link
+	 * @return prevLink
+	 */
+	public PerformanceNode getPrevLink() {
+		return prevLink;
+	}
+	/**
+	 * this method sets the given previous node link
+	 * @param prevLink
+	 */
+	public void setPrevLink(PerformanceNode prevLink) {
+		this.prevLink = prevLink;
+	}
+	/**
+	 * this method returns the next node link
+	 * @return nextLink
+	 */
+	public PerformanceNode getNextLink() {
+		return nextLink;
+	}
+	/**
+	 * this method sets the given next node link
+	 * @param nextLink
+	 */
+	public void setNextLink(PerformanceNode nextLink) {
+		this.nextLink = nextLink;
+	}
+	/**
+	 * this method is used to return the serial number of the node.
+	 * @return
+	 */
+	public int getSerialNo() {
+		return serialNo;
+	}
+	/**
+	 * this method is used to set the given serialNo
+	 * @param serialNo
+	 */
+	public void setSerialNo(int serialNo) {
+		this.serialNo = serialNo;
+	}
+	/**
+	 * formats the object of the PerformanceNode class and saves it as a string
+	 * @return 
+	 * returns a neatly formatted String containing all the data of this PerformanceNode (
+	 */
+	public String toString() {
+		return String.format("%-25s%-25s%12d%9d%10d%n",this.performance,this.performerName,this.totalPerticipants,this.duration,this.startTime);
+	}
+
+}

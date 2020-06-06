@@ -1,0 +1,128 @@
+
+public class HTMLLinkNode {
+
+	private HTMLLinkNode leftChild;
+	private HTMLLinkNode middleChild;
+	private HTMLLinkNode rightChild;
+	
+	public HTMLLinkNode(HTMLLinkNode parent) {
+
+		this.leftChild=null;
+		this.rightChild=null;
+		this.middleChild=null;
+	}
+	private String filename;
+	private String pageTitle;
+	private String linkName;
+	private LinkType linkType;
+	
+	
+	
+	public HTMLLinkNode getLeftChild() {
+		return leftChild;
+	}
+	public void setLeftChild(HTMLLinkNode leftChild) {
+		this.links[0] = leftChild;
+	}
+	public HTMLLinkNode getMiddleChild() {
+		return middleChild;
+	}
+	public void setMiddleChild(HTMLLinkNode middleChild) {
+		this.links[1] = middleChild;
+	}
+	public HTMLLinkNode getRightChild() {
+		return rightChild;
+	}
+	public void setRightChild(HTMLLinkNode rightChild) {
+		this.links[2] = rightChild;
+	}
+	public String getFilename() {
+		return filename;
+	}
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+	public String getPageTitle() {
+		return pageTitle;
+	}
+	public void setPageTitle(String pageTitle) {
+		this.pageTitle = pageTitle;
+	}
+	public String getLinkName() {
+		return linkName;
+	}
+	public void setLinkName(String linkName) {
+		this.linkName = linkName;
+	}
+	public LinkType getLinkType() {
+		return linkType;
+	}
+	public void setLinkType(LinkType linkType) {
+		this.linkType = linkType;
+	}
+	
+	private HTMLLinkNode[] links = new HTMLLinkNode[3];
+   
+	
+	
+	
+	
+	public HTMLLinkNode[] getLinks() {
+		return links;
+	}
+	public void setLinks(HTMLLinkNode[] links) {
+		this.links = links;
+	}
+	
+	
+	
+	
+	public boolean isDeadLink() {
+		return (linkType=="DEAD");
+	}
+	public boolean isCircularLink() {
+		return linkType=="CIRCULAR";
+	}
+	
+	
+	public void addLink(HTMLLinkNode newLink) throws FullNodeExcepition, IllegalArgumentException{
+		if(newLink!=null ) {
+			if(this.leftChild!=null) {
+				this.setLeftChild(newLink);
+			}
+			else if(this.middleChild!=null) {
+				this.setMiddleChild(newLink);
+			}
+			else if(this.rightChild!=null) {
+				this.setRightChild(newLink);
+			}
+			else throw new FullNodeException("All positions in the links array are currently full");
+		}
+		else throw new IllegalArgumentException(" newLink is not a valid reference to an HTMLLinkNode object.");
+	}
+	
+	
+	public HTMLLinkNode getLinkAt(int index) throws IllegalArgumentException{
+		if(index>=0 && index<=2) {
+			if(this.links[index]!=null){
+				return this.links[index];
+			}
+			else return null;
+		}
+		else throw new IllegalArgumentException("index is out of bounds of the links array");
+	}
+	
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof HTMLLinkNode) {
+			HTMLLinkNode newLink=(HTMLLinkNode) obj;
+			return (this.filename.equals(newLink.filename) && this.pageTitle.equals(newLink.pageTitle));
+		}
+		else return false;
+	}
+	
+	
+	public String toString() {
+		
+	}
+}

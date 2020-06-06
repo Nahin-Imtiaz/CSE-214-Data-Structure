@@ -1,0 +1,55 @@
+/**
+ * @author Nahin Imtiaz
+ *		email: nahin.imtiaz@stonybrook.edu
+ *		Stony brook ID : 111214466
+ *		Instructor : Juan Tarquino
+ *		Section -06
+ *
+ *
+ *This class represents a passengerQueue and extends a linkedlist and creates methods depending on it 
+ */
+import java.util.LinkedList;
+
+public class PassengerQueue extends LinkedList<Passenger>{
+	/**
+	 * this is a default contructor of PassengerQueue class to create an object
+	 */
+	public PassengerQueue() {
+	}
+	/**
+	 * this method erters a passenger at the end of linked list
+	 * @param newPassenger
+	 */
+	public void enqueue(Passenger newPassenger) {
+		add(newPassenger);
+	}
+	/**
+	 * this method removes the passenger from the queue and returns it
+	 * @return passenger
+	 */
+	public Passenger dequeue() {
+		return removeFirst();
+	}
+	/**
+	 * this method peeks the passenger of the queue
+	 * @return passenger
+	 */
+	public Passenger peek() {
+		return peekFirst();
+	}
+	/**
+	 * this method returns the size of the queue
+	 * @return size
+	 */
+	public int QueueSize() {
+		return size();
+	}
+	/**
+	 * this method checks if the queue is empty or not
+	 * @return
+	 */
+	public boolean isQueueEmpty() {
+		return isEmpty();
+	}
+	
+}

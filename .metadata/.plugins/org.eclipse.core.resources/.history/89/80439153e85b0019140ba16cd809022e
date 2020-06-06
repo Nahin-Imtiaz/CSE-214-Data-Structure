@@ -1,0 +1,411 @@
+/**
+ * @author Nahin Imtiaz
+ *		email: nahin.imtiaz@stonybrook.edu
+ *		Stony brook ID : 111214466
+ *		Instructor : Juan Tarquino
+ *		Section -06
+ *
+ *this class represents a WebTree which has creates an object of this class and
+ * an object of HTMLLinkNode class .then it adds the root .it also contains 
+ * method for creating a tree throw crawling,printing that tree,searching a 
+ * word in the tree,printing dead links and some helper methods
+ */
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+public class WebTree {
+	private static HTMLLinkNode root;
+	static WebTree webTree = new  WebTree();
+	static int active,circular,dead,total;
+	static boolean done=false;
+	static boolean ok=false;
+	/**
+	 *  this method creates nodes and crawl through the tree and creates nodes
+	 *   and sets their values and returns the amount of dead,active and 
+	 *   circular node found.
+	 * @param fileName
+	 * this is the given filename
+	 * @return
+	 * @throws IllegalArgumentException
+	 * throws exception if Nodes are full
+	 * @throws IOException
+	 * throws exception if input is wrong
+	 */
+	public static WebTree crawlHTML(String fileName) throws 
+	  IllegalArgumentException, IOException{
+		root= new HTMLLinkNode();
+		root.setFilename(fileName);
+		root.setLinkType(LinkType.ACTIVE);
+		
+		FileInputStream fis =null;
+		try {
+			fis = new FileInputStream(fileName);
+		}
+		catch(Exception e) {
+			System.out.println("No such file '"+fileName+"'.");
+			return webTree;
+		}
+		InputStreamReader inStream = new InputStreamReader(fis);
+		BufferedReader reader = new BufferedReader(inStream);
+	
+		String data ;
+			
+		int counter=0;
+		String[] str= new String[3];
+		
+		while((data =reader.readLine())!=null) {
+			if(data.contains("</title>")) {
+				String title = data.substring(data.indexOf("<title>")+7, data.
+				  indexOf("</title>"));
+				root.setPageTitle(title);
+			}
+			if(data.contains("</a>")) {	
+				String temp = data;
+				counter = 0;
+				while(temp.contains("</a>")&&counter<3) {
+					str[counter] = temp.substring(temp.indexOf("<a href=")+9,
+					  temp.indexOf("</a>")+4);
+					counter++;
+					temp = temp.substring(temp.indexOf("</a>")+4);
+				}
+				for(int i=0;i<counter && i<3;i++) {
+					HTMLLinkNode newNode = new HTMLLinkNode();
+					String file,linkName;
+					
+					file= str[i].substring(0, str[i].indexOf(">")-1);
+						
+					linkName = str[i].substring(str[i].indexOf(">")+1,
+					  str[i].indexOf("</a>"));
+					if(file.contains("=")) {
+						file=file.substring(0,linkName.indexOf('"'));
+						newNode.setFilename(file);
+					}
+					newNode.setFilename(file);
+					newNode.setLinkName(linkName);
+					newNode.setParent(root);			
+					try {
+						root.addLink(newNode);
+					}catch(FullNodeException e) {
+						
+					}finally {
+						crawlHTMLHelper(newNode,newNode.getFileName());
+					}
+				}
+			}
+		}
+		total=active+circular+dead;
+		System.out.println("'"+fileName+"' successfully crawled.");
+		System.out.println(active+" active links followed ");
+		System.out.println(circular+" circular links found");
+		System.out.println(dead+" dead links found");
+		System.out.println(total+" total links found ");	
+		return webTree;
+	}
+	/**
+	 * this method creates nodes and crawl through the tree and creates 
+	 * nodes and sets their values and returns the amount of dead,active
+	 *  and circular node found.
+	 * @param newRoot
+	 * this is the root for newnodes
+	 * @param fileName
+	 * this is a new filename being opened
+	 * @throws IllegalArgumentException
+	 * throws exceptions if node is full
+	 * @throws IOException
+	 * throws exception if input is wrong
+	 */
+	public static void crawlHTMLHelper(HTMLLinkNode newRoot,String fileName)
+	  throws IllegalArgumentException, IOException {
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(fileName);
+		}catch(Exception e) {
+			newRoot.setLinkType(LinkType.DEAD);
+			dead++;
+			ok=true;
+			return;
+		}
+		InputStreamReader inStream = new InputStreamReader(fis);
+		BufferedReader reader = new BufferedReader(inStream);
+		String data =reader.readLine();
+			
+		int counter=0;
+		String[] str= new String[3];
+
+		while(data!=null) {
+			if(data.contains("</title>")) {
+				String title = data.substring(data.indexOf("<title>")+7, 
+				  data.indexOf("</title>"));
+				newRoot.setPageTitle(title);
+			}
+			data=reader.readLine();
+		}
+		fis = null;
+		try {
+			fis = new FileInputStream(fileName);
+		}catch(Exception e) {
+			newRoot.setLinkType(LinkType.DEAD);
+			dead++;
+			ok=true;
+			return;
+		}
+		inStream = new InputStreamReader(fis);
+		reader = new BufferedReader(inStream);	
+		data =reader.readLine();
+		if(existsAsAncestor(newRoot)) {
+			newRoot.setLinkType(LinkType.CIRCULAR);
+			circular++;
+			return;
+		}
+		else {
+			newRoot.setLinkType(LinkType.ACTIVE);
+			active++;
+		}
+		while(data!=null) {
+			if(data.contains("</a>")) {
+				String temp = data;
+				counter = 0;
+				while(temp.contains("</a>")&&counter<3) {
+					str[counter] = temp.substring(temp.indexOf("<a href=")+9,
+					  temp.indexOf("</a>")+4);
+					counter++;
+					temp = temp.substring(temp.indexOf("</a>")+4);
+				}
+				for(int i=0;i<counter;i++) {
+					HTMLLinkNode newNode = new HTMLLinkNode();
+					String file,linkName;
+				
+					file= str[i].substring(0, str[i].indexOf(">")-1);
+					newNode.setFilename(file);
+					
+					linkName = str[i].substring(str[i].indexOf(">")+1, 
+					  str[i].indexOf("</a>"));
+					if(file.contains("=")) {
+						file=file.substring(0,linkName.indexOf('"'));
+						newNode.setFilename(file);
+					}
+					newNode.setLinkName(linkName);
+					newNode.setParent(newRoot);
+					try {
+						newRoot.addLink(newNode);
+					}catch(FullNodeException e) {
+					}finally {
+						crawlHTMLHelper(newNode,newNode.getFileName());
+					}	
+				}
+			}
+			data=reader.readLine();
+		}
+	}
+	/**
+	 * this method checks if the given node has any ancestor or not 
+	 * @param node
+	 * the node to compare with
+	 * @return
+	 */
+	public static boolean existsAsAncestor(HTMLLinkNode node) {
+		if(node.getParent() != null) {
+			return existsAsAncestorHelper(node,node.getParent());
+		}
+		else return false;
+	}
+	/**
+	 * this method checks if the given node has any ancestor or not 
+	 * @param node
+	 * the node to compare with
+	 * @param parent
+	 * this is the parent of that node
+	 * @return
+	 */
+	public static boolean existsAsAncestorHelper(HTMLLinkNode node, 
+	  HTMLLinkNode parent) {
+		if(node != root && parent !=null) {	
+			if(node.equals(parent)) {
+				return true;
+			}
+			else return existsAsAncestorHelper(node,parent.getParent());
+		}
+		else return false;
+	}
+	/**
+	 * this method prints the webTree with proper indentation
+	 */
+	public static void printWebTree() {
+		if(root==null) {
+			System.out.println("The tree is empty");
+		}
+		else {
+			String str="";
+			printWebTreeHelper(root,str);
+		}
+	}
+	/**
+	 * this method prints the webTree with proper indentations
+	 * @param root
+	 * this is the root of the tree
+	 * @param str
+	 * this is the string for indentation of that tree
+	 */
+	public static void printWebTreeHelper(HTMLLinkNode root,String str) {
+		if(root==null) return;
+		else {
+			String newStr=str+"    ";
+			
+			System.out.print(str);
+			System.out.println(root);
+			if(root.getLinkAt(0)!=null) {
+				printWebTreeHelper(root.getLinkAt(0),newStr);
+			}
+			if(root.getLinkAt(1)!=null) {
+				printWebTreeHelper(root.getLinkAt(1),newStr);
+			}
+			if(root.getLinkAt(2)!=null) {
+				printWebTreeHelper(root.getLinkAt(2),newStr);
+			}
+		}	
+	}
+	/**
+	 * this method prints all the deadlink path in the tree and prints a 
+	 * message if no deadlink is found
+	 * @param node
+	 * this is the root node
+	 * @param d
+	 * this is an string array
+	 * @param i
+	 * this is an integer variable
+	 */
+	public static void printDeadLink(HTMLLinkNode node,String[] d,int i){
+		if(ok==false){
+			System.out.println("");
+			System.out.println("No dead link found.");
+		}
+		else printHelper(node,d,i);
+	}
+	/**
+	 * this method prints all the deadlink path in the tree and sets the ok 
+	 * variable to true if found
+	 * @param node
+	 * this is the root node
+	 * @param d
+	 * this is an string array
+	 * @param i
+	 * this is an integer variable
+	 * @return
+	 */
+	public static boolean printHelper(HTMLLinkNode node,String[] d,int i) 
+	  {
+		if(node != null && node.getLinkType() != LinkType.CIRCULAR) {
+			d[i] = node.getFileName();
+			i++;
+			if(node.getLinkType() == LinkType.DEAD) {
+				for(int j=0; j<i-2;j++) {
+					System.out.print(d[j]+"->");
+				}
+				System.out.println(d[i-2]+" contains dead link '"+
+				  node.getLinkName()+"' with"
+						+ " target '"+d[i-1]+"'");
+				ok=true;
+			}
+			if(node.getLinkAt(0)!= null && node.getLinkType() !=LinkType.DEAD){
+				printHelper(node.getLinkAt(0),d,i);
+			}
+			if(node.getLinkAt(1)!= null && node.getLinkType() !=LinkType.DEAD){
+				printHelper(node.getLinkAt(1),d,i);
+			}
+			if(node.getLinkAt(2)!= null && node.getLinkType() !=LinkType.DEAD){
+				printHelper(node.getLinkAt(2),d,i);
+			}
+			return ok;
+		}
+		else return ok;
+	}
+	/**
+	 * this method returns the root of this tree
+	 * @return
+	 */
+	public static HTMLLinkNode getRoot() {
+		return root;
+	}
+	/**
+	 *this method searches the keyword in the tree and sets the done variable 
+	 *to true if the target is found and also prints the message if no target
+	 * is found 
+	 * @param keyword
+	 * this is the keyword given to search
+	 * @param node
+	 * this is the node
+	 * @param d
+	 * this is an string array to save the filename
+	 * @param i
+	 * this is a variable
+	 * @throws IllegalArgumentException
+	 * throws exception an error is found
+	 */
+	public static void search(String keyword,HTMLLinkNode node,String[] d,
+	  int i) throws IllegalArgumentException{
+		searchHelper(keyword,node,d,i);
+		if(done==false){
+			System.out.println("");
+			System.out.println("No page found with the keyword "+keyword+".");
+			done=false;
+		}
+	}
+	/**
+	 * this method searches the keyword in the tree and sets the done variable
+	 *  to true if the target is found
+	 * @param keyword
+	 * this is the keyword given to search
+	 * @param node
+	 * this is the node
+	 * @param d
+	 * this is an string array to save the filename
+	 * @param i
+	 * this is a variable 
+	 * @throws IllegalArgumentException
+	 * throws exception an error is found
+	 */
+	public static void searchHelper(String keyword,HTMLLinkNode node,String[] d
+	  ,int i) throws IllegalArgumentException{
+		if(node != null && node.getLinkType() != LinkType.DEAD&& node
+		  .getLinkType() != LinkType.CIRCULAR) {
+			d[i] = node.getFileName();
+			i++;
+			String s = (node.getPageTitle()).toUpperCase();
+			String t = keyword.toUpperCase();
+			if(s.contains(t)) {
+				for(int j=0; j<i-1;j++) {
+					System.out.print(d[j]+"->");
+				}
+				System.out.println(d[i-1]);
+				done=true;
+			}
+			if(node.getLinkAt(0)!= null && node.getLinkType() != LinkType
+			  .CIRCULAR) {
+				searchHelper(keyword,node.getLinkAt(0),d,i);
+			}
+			if(node.getLinkAt(1)!= null && node.getLinkType() != LinkType
+			  .CIRCULAR) {
+				searchHelper(keyword,node.getLinkAt(1),d,i);
+			}
+			if(node.getLinkAt(2)!= null && node.getLinkType() != LinkType
+			  .CIRCULAR) {
+				searchHelper(keyword,node.getLinkAt(2),d,i);
+			}
+		}
+		else return;
+	}
+	/**
+	 * this method resets the variables for webTree
+	 */
+	public static void resetTreeStructure() {
+		active=0;
+		dead=0;
+		circular=0;
+		total=0;
+		root=null;
+		
+	}
+}

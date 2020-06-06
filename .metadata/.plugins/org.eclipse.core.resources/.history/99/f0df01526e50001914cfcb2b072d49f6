@@ -1,0 +1,22 @@
+import java.util.LinkedList;
+
+public class PassengerQueue extends LinkedList<Passenger>{
+	public PassengerQueue() {
+	}
+	public void enqueue(Passenger newPassenger) {
+		this.add(newPassenger);
+	}
+	public Passenger dequeue() {
+		return this.removeFirst();
+	}
+	public Passenger peek() {
+		return this.peekFirst();
+	}
+	public int size() {
+		return this.size();
+	}
+	public boolean isEmpty() {
+		return this.isEmpty();
+	}
+	
+}

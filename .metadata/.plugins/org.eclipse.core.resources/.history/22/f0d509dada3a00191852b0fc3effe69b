@@ -1,0 +1,221 @@
+/**
+ * @author Nahin Imtiaz
+ *		email: nahin.imtiaz@stonybrook.edu
+ *		Stony brook ID : 111214466
+ *		Instructor : Juan Tarquino
+ *		Section -06
+ *
+ *
+ *This class is used to store objects of PerformanceNode into a linked list.It has head,tail and cursor.It also provide an interface to interact with the linked list.
+ */
+public class PerformanceList {
+	private PerformanceNode head;
+	private PerformanceNode tail;
+	private PerformanceNode cursor;
+	int position = 0;
+	/**
+	 * this is a constructor which is used to create a new linked list
+	 */
+	public PerformanceList() {
+		this.head = null;
+		this.tail = null;
+		this.cursor = null;
+	}
+	/**
+	 * Inserts the new performance at the end of the PerformanceList.
+	 * @param newPerformance
+	 * this is an object of PerformanceNode
+	 */
+	public void addToEnd(PerformanceNode newPerformance) {
+		if(this.head == null||cursor==null){
+			this.head = newPerformance;
+			this.tail = newPerformance;
+			this.cursor = newPerformance;
+			newPerformance.setSerialNo(newPerformance.getSerialNo()+1);
+		}
+		else{
+			while(cursor.getNextLink()!=null) {
+				cursor = cursor.getNextLink();
+			}
+			newPerformance.setPrevLink(cursor);
+			cursor.setNextLink(newPerformance);
+			cursor = newPerformance;
+			tail = newPerformance;
+			newPerformance.setStartTime(newPerformance.getPrevLink().getStartTime(),newPerformance.getPrevLink().getDuration());
+			newPerformance.setSerialNo(newPerformance.getPrevLink().getSerialNo()+1);
+		}
+		position++;
+	}
+	/**
+	 * Inserts the new data into the PerformanceList such that the new node directly follows the current node
+	 * @param newPerformance
+	 * this is an object of PerformanceNode
+	 */
+	public void addAfterCurrent(PerformanceNode newPerformance) {
+		if(cursor==null) {
+			head = newPerformance;
+			tail = newPerformance;
+			cursor = newPerformance;
+			newPerformance.setSerialNo(newPerformance.getSerialNo()+1);
+		}
+		else if(cursor.getNextLink()==null) {
+			newPerformance.setPrevLink(cursor);
+			cursor.setNextLink(newPerformance);
+			cursor = newPerformance;
+			tail= newPerformance;
+			newPerformance.setStartTime(newPerformance.getPrevLink().getStartTime(),newPerformance.getPrevLink().getDuration());
+			newPerformance.setSerialNo(newPerformance.getPrevLink().getSerialNo()+1);
+		}
+		else {
+			newPerformance.setNextLink(cursor.getNextLink());
+			newPerformance.setPrevLink(cursor);
+			cursor.setNextLink(newPerformance);
+			newPerformance.getNextLink().setPrevLink(newPerformance);
+			cursor = newPerformance;
+			int tempDuration=cursor.getDuration();
+			int tempStartTime = cursor.getStartTime();
+			while(newPerformance!=null) {
+				newPerformance.setStartTime(newPerformance.getPrevLink().getStartTime()+tempStartTime,newPerformance.getPrevLink().getDuration()+tempDuration);
+				newPerformance.setSerialNo(newPerformance.getPrevLink().getSerialNo()+1);
+				newPerformance = newPerformance.getNextLink();
+			}	
+		}
+		position++;
+	}
+	/**
+	 * Removes the current node, if it exists. The current node should now be the node after the one that was just removed.
+	 * @return boolean
+	 */
+	public boolean removeCurrentNode() {
+		if(cursor!=null ) {
+			PerformanceNode tempNode = cursor;
+			if(cursor.getNextLink()==null && cursor.getPrevLink()==null) {
+				cursor= null;
+				head= null;
+				tail = null;
+			}
+			else if(cursor.getNextLink()==null) {
+				cursor=cursor.getPrevLink();
+				tail = cursor;
+			}
+			else {
+				cursor.getPrevLink().setNextLink(cursor.getNextLink());
+				cursor.getNextLink().setPrevLink(cursor.getPrevLink());
+				
+				int tempDuration=cursor.getDuration();
+				int tempStartTime = cursor.getStartTime();
+				cursor = cursor.getNextLink();
+				PerformanceNode tempNode1 = cursor;
+				while(tempNode1!=null){
+					tempNode1.setStartTime(tempNode1.getPrevLink().getStartTime()-tempStartTime,tempNode1.getPrevLink().getDuration()-tempDuration);
+					tempNode1.setSerialNo(tempNode1.getPrevLink().getSerialNo()-1);
+					tempNode1 = tempNode1.getNextLink();
+				}	
+			}
+			position--;
+			System.out.println("performance "+tempNode.getPerformance()+" has been removed.");
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * this method returns the cursor
+	 * @return cursor
+	 */
+	public PerformanceNode getCursor() {
+		return cursor;
+	}
+	/**
+	 * this method returns the amount of nodes in the list
+	 * @return position
+	 */
+	public int getPosition() {
+		return this.position;
+	}
+	/**
+	 * this method returns the tail
+	 * @return tail
+	 */
+	public PerformanceNode getTail() {
+		return this.tail;
+	}
+	/**
+	 * this method prints out the current node
+	 */
+	public void displayCurrentPerformance()	{
+		System.out.println(cursor);
+	}
+	/**
+	 * this method moves the cursor one step forward
+	 * @return boolean
+	 * @throws NoCurrentNodeException
+	 * throws exception if there is no current node the list
+	 */
+	public boolean moveCursorForward() throws NoCurrentNodeException {
+		if(cursor == null) {
+			throw new NoCurrentNodeException("There is no performance in the schedule.");
+		}
+		if (cursor.getNextLink()!=null) {
+			cursor = cursor.getNextLink();
+			return true;
+		}
+		else { 
+			return false;
+		}	
+		
+	}
+	/**
+	 * this method moves the cursor one step backward
+	 * @return boolean
+	 * @throws NoCurrentNodeException
+	 * throws exception if there is no node in the method
+	 */
+	public boolean moveCursorBackward() throws NoCurrentNodeException{
+		if(cursor == null) {
+			throw new NoCurrentNodeException("There is no performance in the schedule.");
+		}
+		if (cursor.getPrevLink()!=null) {
+			cursor = cursor.getPrevLink();
+			return true;
+		}
+		else return false;
+		
+	}
+	/**
+	 * this method moves the curson in the position it is asked to.
+	 * @param position
+	 * this is the position the cursor has to jump to
+	 * @return boolean
+	 */
+	public boolean jumpToPosition(int position) {
+		if(!(position>this.position||position<0)) {
+			cursor = head;
+			for(int i=0;i<this.position-1;i++) {
+			cursor=cursor.getNextLink();
+			}
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * formats all the objects of the PerformanceNode class and saves it as a string
+	 * @return 
+	 * returns a neatly formatted String containing all the data of this PerformanceList (
+	 */
+	public String toString(){
+		PerformanceNode newNode = head;
+		String str ="";
+		
+		for(int i=0;i<this.position;i++) {
+			if(newNode==cursor) {
+				str+=String.format("%7s%5d","*",newNode.getSerialNo());
+			}
+			else {
+				str+=String.format("%7s%5d","",newNode.getSerialNo());
+			}
+			str +=newNode.toString();
+			newNode=newNode.getNextLink();
+		}
+		return str;
+	}
+}

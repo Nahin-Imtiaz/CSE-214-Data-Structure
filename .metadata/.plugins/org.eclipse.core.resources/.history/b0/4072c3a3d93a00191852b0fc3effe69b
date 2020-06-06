@@ -1,0 +1,194 @@
+/**
+ * @author Nahin Imtiaz
+ *		email: nahin.imtiaz@stonybrook.edu
+ *		Stony brook ID : 111214466
+ *		Instructor : Juan Tarquino
+ *		Section -06
+ *
+ *This class contains a main method that presents a menu that allows the user to access data from the API, store it in a linked list, and interact with it using commands.
+ */
+import java.util.Scanner;
+public class PerformanceScheduler {
+	/**
+	 * The main method runs a menu driven application which first creates one empty PerformanceList and then prompts the user for a command selecting the operation. Once an operation is selected, the program prompts for any additional information required to perform the operation, and then actually performs the operation.
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Scanner input;
+		int i=1;
+		String performance,performer;
+		int perticipants,duration;
+		PerformanceList list = new PerformanceList();
+		/**
+		 * Prints menu and doesnt quit until operation Q is selected
+		 */
+		while(i!=0) {
+			System.out.println("A) Add to end");
+			System.out.println("B) Move current node backward");
+			System.out.println("C) Display current node");
+			System.out.println("D) Display all nodes");
+			System.out.println("F) Move current node forward");
+			System.out.println("I) Insert after current node");
+			System.out.println("J) Jump to position");
+			System.out.println("R) Remove current node");
+			System.out.println("Q) Exit");
+			System.out.println(" ");
+			System.out.print("Select an operation: ");
+			System.out.println(" ");
+			input = new Scanner(System.in);
+			String operation = input.nextLine();
+			/**
+			 * Prompts the user for information regarding a performance. Create a new PerformanceNode for this performance, and add it to the end of the list.
+			 */
+			if(operation.equalsIgnoreCase("A")) {
+				PerformanceNode newNode = new PerformanceNode();
+				System.out.print("Enter name of performance: ");
+				performance=input.nextLine();
+				newNode.setPerformance(performance);
+				System.out.print("Enter name of lead performer: ");
+				performer = input.nextLine();
+				newNode.setPerformerName(performer);
+				System.out.print("Enter the total participants: ");
+				perticipants=input.nextInt();
+				newNode.setTotalPerticipants(perticipants);;
+				System.out.print("Enter the duration of the performance: ");
+				duration=input.nextInt();
+				newNode.setDuration(duration);
+				list.addToEnd(newNode);
+				System.out.println(" ");
+				System.out.println("New performance "+performance+" is added to the end of the list.");
+				System.out.println(" ");
+			}
+			try {
+				/**
+				 * Moves the reference of the current node backwards by one position if there is a previous node in the list. 
+				 */
+				if(operation.equalsIgnoreCase("B")) {
+					if(list.getCursor().getPrevLink()==null) {
+						System.out.println(" ");
+						System.out.println("The current slide is the first in the list.");
+						System.out.println(" ");
+					}
+					else if(list.moveCursorBackward()) {
+						System.out.println(" ");
+						System.out.println("Cursor has been moved backwards.");
+						System.out.println(" ");
+					}
+				}
+			}catch(NoCurrentNodeException e) {
+				System.out.println(e);
+			}	
+			/**
+			 * Displays the contents of the current node.
+			 */
+			if(operation.equalsIgnoreCase("C")) {
+				if(list.getCursor()==null) {
+					System.out.println(" ");
+					System.out.println("There is no performance in the schedule.");
+					System.out.println(" ");
+				}
+				else {
+					System.out.printf("%-8s%-4s%-25s%-25s%-13s%-9s%-10s%n","Current","No.","Performance Name","Lead Performer Name","Participants","Duration","Start time");
+					System.out.printf("%-8s%-4s%-25s%-25s%-13s%-9s%-10s%n","--------","----","-------------------------","-------------------------","-------------","---------","----------");
+					System.out.printf("%7s%5d","*",list.getCursor().getSerialNo());
+					list.displayCurrentPerformance();
+				}
+			}
+			/**
+			 *Displays the contents of all nodes, in order. 
+			 */
+			if(operation.equalsIgnoreCase("D")) {
+				if(list.getCursor()==null) {
+					System.out.println(" ");
+					System.out.println("There are no performances in the schedule.");
+					System.out.println(" ");
+				}
+				else{
+					System.out.printf("%-8s%-4s%-25s%-25s%-13s%-9s%-10s%n","Current","No.","Performance Name","Lead Performer Name","Participants","Duration","Start time");
+					System.out.printf("%-8s%-4s%-25s%-25s%-13s%-9s%-10s%n","--------","----","-------------------------","-------------------------","-------------","---------","----------");
+					System.out.println(list);
+				}
+			}
+			try {
+				/**
+				 * Moves the reference of the current node forward by one position if there is another node in the list. 
+				 */
+				if(operation.equalsIgnoreCase("F")) {
+					if(list.getCursor().getNextLink()==null) {
+						System.out.println(" ");
+						System.out.println("The current slide is the last in the list.");
+						System.out.println(" ");
+					}
+					else if(list.moveCursorForward()) {
+						System.out.println(" ");
+						System.out.println("Cursor has been moved forward.");
+						System.out.println(" ");
+					}
+				}
+			}catch(NoCurrentNodeException e) {
+				System.out.println(e);
+			}	
+			/**
+			 * Prompts the user for information regarding a performance. Create a new PerformanceNode and add it after the current performance.
+			 */
+			if(operation.equalsIgnoreCase("I")) {
+				PerformanceNode newNode = new PerformanceNode();
+				System.out.print("Enter name of performance: ");
+				performance = input.nextLine();
+				newNode.setPerformance(performance);
+				System.out.print("Enter name of lead performer: ");
+				performer=input.nextLine();
+				newNode.setPerformerName(performer);
+				System.out.print("Enter the total participants: ");
+				perticipants = input.nextInt();
+				newNode.setTotalPerticipants(perticipants);
+				System.out.print("Enter the duration of the performance: ");
+				duration=input.nextInt();
+				newNode.setDuration(duration);
+		
+				list.addAfterCurrent(newNode);
+				System.out.println(" ");
+				System.out.println("New performance "+performance+" is added after the current performance.");
+				System.out.println(" ");
+			}
+			/**
+			 * Prompts the user for a position number and moves the current node to that number node, if it exists. 
+			 */
+			if(operation.equalsIgnoreCase("J")) {
+				System.out.print("Enter the position: ");
+				int position = input.nextInt();
+				if(list.getPosition()<position) {
+					System.out.println(" ");
+					System.out.println("There is no performance at this position.");
+					System.out.println(" ");
+				}
+				else if(list.jumpToPosition(position)) {
+					System.out.println(" ");
+					System.out.println("Cursor has been moved to position "+position+".");
+					System.out.println(" ");
+				}
+			}
+			/**
+			 * If there is a current node, it is removed from the list and the current node is moved to the next appropriate current node. 
+			 */
+			if(operation.equalsIgnoreCase("R")) {
+				if(list.getCursor()==null) {
+					System.out.println(" ");
+					System.out.println("There is no performance in the schedule to remove.");
+					System.out.println(" ");
+				}
+				list.removeCurrentNode();	
+			}
+			/**
+			 * Exit the program.
+			 */
+			if(operation.equalsIgnoreCase("Q")) {
+				i=0;
+				System.out.println(" ");
+				System.out.println("Program terminating normally...");
+				System.out.println(" ");
+			}
+		}
+		System.exit(0);
+	}
+}

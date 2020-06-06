@@ -1,0 +1,46 @@
+
+public class Card {
+	int suit;
+	int value;
+	boolean isFaceUp=false;
+	public Card() {
+	}
+	public Card(int suit,int value) {
+		this.suit= suit;
+		this.value=value;
+	}
+	public int getSuit() {
+		return suit;
+	}
+	public void setSuit(int suit) {
+		this.suit = suit;
+	}
+	public int getValue() {
+		return value;
+	}
+	public void setValue(int value) {
+		this.value = value;
+	}
+	public boolean isFaceUp(){
+		if(this.isFaceUp) return true;
+		return false;
+	}
+	public void setFaceUp(boolean faceUp) {
+		this.isFaceUp=faceUp;
+	}
+	public boolean isRed() {
+		if(this.suit%2!=0)return true;
+		return false;
+	}
+	String values[] = {" ","A","2","3","4","5","6","7","8","9","10","J","Q","K"};
+    char suits[]    = {' ', '\u2666', '\u2663','\u2665', '\u2660'};
+	
+    public String toString() {
+		if (this.isFaceUp) {
+			String str = values[this.getValue()]+suits[this.getSuit()];
+			return str;
+		}
+		else return "XX";
+	}
+	
+}

@@ -1,0 +1,291 @@
+import java.util.Scanner;
+
+public class Simulator {
+	static int numInBusses;
+	static int numOutBusses;
+	static int minGroupSize;
+	static int maxGroupSize;
+	static int capacity;
+	static double arrivalProb;
+	static int groupsServed;
+	static int totalTimeWaited;
+	
+	public static void main(String[] args) {
+		Scanner input;
+		input = new Scanner(System.in);
+		int duration;
+		
+		System.out.print("Enter the number of In Route busses: ");
+		numInBusses=input.nextInt();
+		System.out.print("Enter the number of Out Route busses: ");
+		numOutBusses=input.nextInt();
+		System.out.print("Enter the minimum group size of passengers: ");
+		minGroupSize=input.nextInt();
+		System.out.print("Enter the maximum group size of passengers: ");
+		maxGroupSize=input.nextInt();
+		System.out.print("Enter the capacity of a bus: ");
+		capacity=input.nextInt();
+		System.out.print("Enter the arrival probability: ");
+		arrivalProb=input.nextDouble();
+		System.out.print("Enter the duration of the simulation: ");
+		duration=input.nextInt();
+		System.out.println("");
+		
+		Simulator simulator = new Simulator(numInBusses,numOutBusses,minGroupSize,maxGroupSize,capacity,arrivalProb);
+		System.out.println(simulate(duration));
+		
+	}
+	
+	public Simulator(int numInBusses,int numOutBusses,int minGroupSize,int maxGroupSize,int capacity,double arrivalProb) {
+		this.numInBusses= numInBusses;
+		this.numOutBusses= numOutBusses;
+		this.minGroupSize= minGroupSize;
+		this.maxGroupSize= maxGroupSize;
+		this.capacity= capacity;
+		this.arrivalProb= arrivalProb;
+	}
+	
+	public static double[] simulate(int duration) {		
+		int NUM_BUS_STOPS = 8;
+		PassengerQueue[] busStops = new PassengerQueue[NUM_BUS_STOPS]; // NUM_BUS_STOPS = 8
+		
+		for(int i = 0; i < NUM_BUS_STOPS; i++) {
+		    busStops[i] = new PassengerQueue();
+		}
+		
+		String inRoute[]  = {"South P", "West", "SAC", "Chapin"};
+		String outRoute[] = {"South P", "PathMart", "Walmart", "Target"};
+		
+		Bus[] inBus = new Bus[numInBusses];
+		Bus[] outBus = new Bus[numOutBusses];
+		int timeIn=0;
+		for(int i = 0; i < numInBusses; i++) {
+			if(i==0) {
+				inBus[i] = new Bus(capacity,1,1);
+			}
+			else{
+				timeIn=timeIn+30;
+				inBus[i] = new Bus(capacity,timeIn,0);
+			}
+		}
+		int timeOut=0;
+		for(int i = 0; i < numOutBusses; i++) {
+			if(i==0) {
+				outBus[i] = new Bus(capacity,1,1);
+			}
+			else{
+				timeOut=timeOut+30;
+				outBus[i] = new Bus(capacity,timeOut,1);
+			}
+		}
+		
+		for(int j=0;j<duration;j++) {
+			System.out.println("");
+			System.out.println("Minute "+(j+1));
+			for(int i = 0; i < NUM_BUS_STOPS; i++) {
+				if(occurs()) {
+					Passenger newPassenger = new Passenger();
+					newPassenger.setSize(randInt());
+					newPassenger.setArrivalTime(j);
+					if (i < inRoute.length) {
+						if(i<inRoute.length-1) {
+							newPassenger.setDestination((int)(Math.random()*(((inRoute.length-1)-(i+1))+1)+(i+1)) );
+							if(newPassenger.getDestination()>i){
+								busStops[i].add(newPassenger);
+								System.out.println("A group of "+busStops[i].peek().getSize()+" passengers arrived at "+inRoute[i]+" heading to "+inRoute[busStops[i].peek().getDestination()]+".");
+							}
+						}
+						else {
+							newPassenger.setDestination(0);
+							busStops[i].add(newPassenger);
+							System.out.println("A group of "+busStops[i].peek().getSize()+" passengers arrived at "+inRoute[i]+" heading to "+inRoute[0]+".");
+						}
+					}	
+					else {						
+						if(i<NUM_BUS_STOPS-1) {
+							newPassenger.setDestination((int)(Math.random()*(((((inRoute.length+outRoute.length)-1)-(i+1))+1)+(i+1)) ));
+							if(newPassenger.getDestination()>i) {
+								busStops[i].add(newPassenger);
+								System.out.println("A group of "+busStops[i].peek().getSize()+" passengers arrived at "+outRoute[i-4]+" heading to "+outRoute[busStops[i].peek().getDestination()-4]+".");
+							}
+						}
+						else {
+							newPassenger.setDestination(inRoute.length);
+							busStops[i].add(newPassenger);
+							System.out.println("A group of "+busStops[i].peek().getSize()+" passengers arrived at "+outRoute[i-4]+" heading to "+outRoute[0]+".");
+						}
+					}
+				}
+			}
+			for(int k=0;k<inBus.length;k++) {
+				if(j==0) {
+					inBus[k].reduceTimeToRest();
+				}
+				if(inBus[k].isTimeToRestZero()) {
+					if(inBus[k].getNextStop()<4) {
+						if(inBus[k].isToNextStopZero()) {
+							
+							System.out.print("In Route Bus "+(k+1)+" arrives at "+inRoute[inBus[k].getNextStop()]+".");
+							
+							int passengerDropped = inBus[k].unload(inBus[k].getNextStop());
+							int passengerPicked = 0;
+							if(passengerDropped>0) {
+								groupsServed =groupsServed + passengerDropped;
+								System.out.print(" Drops off "+passengerDropped+" passengers.");
+							}
+							PassengerQueue tempQueue = new PassengerQueue();
+							while(!busStops[inBus[k].getNextStop()].isQueueEmpty()) {
+								
+								if((inBus[k].busSize()+busStops[inBus[k].getNextStop()].peek().getSize())<=capacity) {
+									passengerPicked=passengerPicked + busStops[inBus[k].getNextStop()].peek().getSize();
+									totalTimeWaited= totalTimeWaited +(j+busStops[inBus[k].getNextStop()].peek().getArrivalTime());
+									inBus[k].addPassenger(busStops[inBus[k].getNextStop()].dequeue());
+								}
+								else {
+									tempQueue.enqueue(busStops[inBus[k].getNextStop()].dequeue());
+								}
+							}
+							if(passengerPicked!=0) {
+								System.out.println(" Picks up "+passengerPicked+" passengers.");
+							}
+							else {
+								System.out.println("");
+							}
+							while(!tempQueue.isQueueEmpty()) {
+								busStops[inBus[k].getNextStop()].enqueue(tempQueue.dequeue());
+							}
+							
+							inBus[k].setToNextStop();
+							inBus[k].setNextStop();
+						}
+						else {
+							inBus[k].reduceToNextStop();
+							
+							System.out.println("In Route Bus "+(k+1)+" moving toward "+inRoute[inBus[k].getNextStop()]+". Arrive in "+inBus[k].getToNextStop()+" minutes.");
+						}
+					}
+					else if (inBus[k].getNextStop()==4) {
+						if(inBus[k].isToNextStopZero()) {
+							System.out.print("In Route Bus "+(k+1)+" arrives at "+inRoute[0]+".");
+							int passengerDropped = inBus[k].unload(0);
+							if(passengerDropped>0) {
+								groupsServed =groupsServed + passengerDropped;
+								System.out.println(" Drops off "+passengerDropped+" passengers.");
+							}
+							else {
+								System.out.println("");
+							}
+							inBus[k].setTimeToRest(30);
+							inBus[k].setNextStopToZero(0);
+							inBus[k].setToNextStop();
+							inBus[k].setNextStop();
+						}
+						else {
+							inBus[k].reduceToNextStop();
+							System.out.println("In Route Bus "+(k+1)+" moving toward "+inRoute[0]+". Arrive in "+inBus[k].getToNextStop()+" minutes.");
+						}
+					}
+				}
+				else {
+					System.out.println("In Route Bus "+(k+1)+" is resting at South P for "+inBus[k].getTimeToRest()+" minutes.");
+					inBus[k].reduceTimeToRest();
+
+				}
+			}	
+			
+			
+			
+			
+			for(int k=0;k<outBus.length;k++) {
+				if(j==0) {
+					outBus[k].reduceTimeToRest();
+				}
+				if(outBus[k].isTimeToRestZero()) {
+					if(outBus[k].getNextStop()<4) {
+						if(outBus[k].isToNextStopZero()) {
+							
+							System.out.print("Out Route Bus "+(k+1)+" arrives at "+outRoute[outBus[k].getNextStop()]+".");
+							int passengerDropped = outBus[k].unload(outBus[k].getNextStop()+4);
+							int passengerPicked = 0;
+							if(passengerDropped>0) {
+								groupsServed =groupsServed + passengerDropped;
+								System.out.print(" Drops off "+passengerDropped+" passengers.");
+							}
+							PassengerQueue tempQueue = new PassengerQueue();
+							while(!busStops[outBus[k].getNextStop()+4].isQueueEmpty()) {
+								if((outBus[k].busSize()+busStops[outBus[k].getNextStop()+4].peek().getSize())<=capacity) {
+									totalTimeWaited= totalTimeWaited +(j+busStops[outBus[k].getNextStop()+4].peek().getArrivalTime());
+									outBus[k].addPassenger(busStops[outBus[k].getNextStop()+4].dequeue());
+								}
+								else {
+									tempQueue.enqueue(busStops[outBus[k].getNextStop()+4].dequeue());
+								}
+							}
+							if(passengerPicked!=0) {
+								System.out.println(" Picks up "+passengerPicked+" passengers.");
+							}
+							else {
+								System.out.println("");
+							}
+							while(!tempQueue.isQueueEmpty()) {
+								busStops[outBus[k].getNextStop()+4].enqueue(tempQueue.dequeue());
+							}
+						
+							outBus[k].setToNextStop();
+							outBus[k].setNextStop();
+						}
+						else {
+							outBus[k].reduceToNextStop();
+							System.out.println("Out Route Bus "+(k+1)+" moving toward "+outRoute[outBus[k].getNextStop()]+". Arrive in "+outBus[k].getToNextStop()+" minutes.");
+						}
+					}
+					else if (outBus[k].getNextStop()==4) {
+						if(outBus[k].isToNextStopZero()) {
+							System.out.print("Out Route Bus "+(k+1)+" arrives at "+outRoute[0]+".");
+							int passengerDropped = outBus[k].unload(4);
+							if(passengerDropped>0) {
+								groupsServed =groupsServed + passengerDropped;
+								System.out.println(" Drops off "+passengerDropped+" passengers.");
+							}
+							else {
+								System.out.println("");
+							}
+							outBus[k].setTimeToRest(30);
+							outBus[k].setNextStopToZero(0);
+							outBus[k].setToNextStop();
+							outBus[k].setNextStop();
+						}
+						else {
+							outBus[k].reduceToNextStop();
+							System.out.println("Out Route Bus "+(k+1)+" moving toward "+outRoute[0]+". Arrive in "+outBus[k].getToNextStop()+" minutes.");
+						}
+					}
+				}
+				else {
+					System.out.println("Out Route Bus "+(k+1)+" is resting at South P for "+outBus[k].getTimeToRest()+" minutes.");
+					outBus[k].reduceTimeToRest();
+					
+				}
+			}		
+		}
+		double[] returnArray = new double[2];
+		double average=0;
+		if(groupsServed!=0) {
+			average = (totalTimeWaited/groupsServed);
+		}
+		returnArray[0]=groupsServed;
+		returnArray[1]=average;
+		System.out.println("");
+		
+		return returnArray;
+	}
+	
+	private static int randInt() {
+		int rand= (int)(Math.random()*((Simulator.maxGroupSize-Simulator.minGroupSize)+1)+Simulator.minGroupSize);
+		return rand;
+	}
+	
+	public static boolean occurs() {
+		return (Math.random()<arrivalProb);
+	}
+}
